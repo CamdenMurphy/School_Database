@@ -5,7 +5,8 @@ import csv
 class GUI:
     def __init__(self, window):
         """
-        :param window:
+        This method initializes the graphical user interface.
+        :param window: tkinter gui window from main.py
         """
         self.window = window
 
@@ -42,16 +43,30 @@ class GUI:
         self.frame_save.pack(pady=10)
 
 
+    def clear_window(self):
+        self.entry_name.delete(0, END)
+        self.entry_age.delete(0, END)
+        self.radio_1.set("NONE")
 
     def save_clicked(self):
+        """
+        This method is enacted when the save button is clicked.
+        It saves the entered student or staff member into a csv file.
+        :return: None
+        """
         name = self.entry_name.get()
-        age = int(self.entry_age.get()) * 2
+        age = int(self.entry_age.get())
         status = self.radio_1.get()
 
         with open('records.csv', 'a', newline='') as records:
             content = csv.writer(records)
             content.writerow([name, age, status])
 
-        self.entry_name.delete(0,END)
-        self.entry_age.delete(0, END)
-        self.radio_1.set("NONE")
+        self.clear_window()
+
+    def remove_clicked(self):
+        """
+        This method removes a record by name (TODO: change name to id number)
+        :return:
+        """
+        name = self.entry_name.get()
