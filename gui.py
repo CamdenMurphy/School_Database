@@ -10,6 +10,7 @@ class GUI:
         """
         self.window = window
 
+        # Name entry box
         self.frame_name = Frame(self.window)
         self.label_name = Label(self.frame_name, text='Student Name')
         self.entry_name = Entry(self.frame_name)
@@ -17,6 +18,7 @@ class GUI:
         self.entry_name.pack(padx=5, side='left')
         self.frame_name.pack(anchor='w', pady=10)   # anchor='w' helps to change the frame position from center to west.
 
+        # Student ID entry box
         self.frame_id = Frame(self.window)
         self.label_id = Label(self.frame_id, text='Student ID')
         self.entry_id = Entry(self.frame_id)
@@ -24,6 +26,7 @@ class GUI:
         self.entry_id.pack(padx=26, side='left')
         self.frame_id.pack(anchor='w', pady=10)
 
+        # Grade level radio buttons
         self.frame_status = Frame(self.window)
         self.radio_1 = StringVar()
         self.radio_1.set('NONE')
@@ -39,7 +42,7 @@ class GUI:
         self.radio_senior.pack(side='left')
         self.frame_status.pack(anchor='w', pady=10)
 
-        # Buttons
+        # Save and remove buttons
         self.frame_buttons = Frame(self.window)
         self.button_save = Button(self.frame_buttons, text='    SAVE    ', command=self.save_clicked)
         self.button_remove = Button(self.frame_buttons, text='REMOVE', command=self.remove_clicked)
@@ -47,6 +50,7 @@ class GUI:
         self.button_remove.pack(side='left', padx=10)
         self.frame_buttons.pack(pady=10)
 
+        # Message prompt
         self.frame_prompt = Frame(self.window)
         self.label_prompt = Label(self.frame_prompt, text='')
         self.label_prompt.pack(side='top')
@@ -58,9 +62,12 @@ class GUI:
         This method is called to reset the window to its default settings
         :return: None
         '''
-        self.entry_name.delete(0, END)
-        self.entry_id.delete(0, END)
-        self.radio_1.set("NONE")
+        try:
+            self.entry_name.delete(0, END)
+            self.entry_id.delete(0, END)
+            self.radio_1.set("NONE")
+        except:
+            print('error')
 
     def save_clicked(self):
         """
@@ -68,17 +75,35 @@ class GUI:
         It saves the entered student into a csv file.
         :return: None
         """
-        name = self.entry_name.get()
-        student_id = int(self.entry_id.get())
-        status = self.radio_1.get()
-        prompt = ''
+        try:
+            name = self.entry_name.get()
+            student_id = self.entry_id.get()
+            status = self.radio_1.get()
+            prompt = ''
+            duplicate = False
 
-        with open('records.csv', 'a', newline='') as records:
-            content = csv.writer(records)
-            content.writerow([name, student_id, status])
-            prompt = 'Student added.'
+            if student_id.isdigit():
+                int(student_id)
 
-        self.label_prompt.config(text=f'{prompt}')
+                with open('records.csv', 'r', newline='') as records:
+                    content = csv.reader(records)
+                    for row in content:
+                        if int(row[1]) == int(student_id):
+                            duplicate = True
+                if duplicate:
+                    prompt = f'Student {student_id} already exists!'
+                else:
+                    with open('records.csv', 'a', newline='') as records:
+                        content = csv.writer(records)
+                        content.writerow([name, student_id, status])
+                        prompt = 'Student added.'
+            else:
+                prompt = 'Student ID must be an number!'
+
+            self.label_prompt.config(text=f'{prompt}')
+        except:
+            print('Error')
+
         self.clear_window()
 
     def remove_clicked(self):
@@ -86,26 +111,30 @@ class GUI:
         This method searches records.csv for a student ID and removes its contents
         :return: None
         """
-        student_id = int(self.entry_id.get())
+        try:
+            student_id = int(self.entry_id.get())
 
-        with open('records.csv', 'r', newline='') as read_file:
-            lines = list()
-            prompt = ''
-            found = False
-            content = csv.reader(read_file)
+            with open('records.csv', 'r', newline='') as read_file:
+                lines = list()
+                prompt = ''
+                found = False
+                content = csv.reader(read_file)
 
-            for row in content:
-                if int(row[1]) != student_id:
-                    lines.append(row)
-                else:
-                    prompt = 'Student removed.'
-                    found = True
+                for row in content:
+                    if int(row[1]) != student_id:
+                        lines.append(row)
+                    else:
+                        prompt = 'Student removed.'
+                        found = True
 
-                if not found:
-                    prompt = f'Student ID: {student_id} not found!'
+                    if not found:
+                        prompt = f'Student ID: {student_id} not found!'
 
-            self.rewrite(lines)
-            self.label_prompt.config(text=f'{prompt}')
+                self.rewrite(lines)
+                self.label_prompt.config(text=f'{prompt}')
+        except:
+            print('Error')
+
         self.clear_window()
 
     def rewrite(self, lines):
@@ -115,7 +144,10 @@ class GUI:
         :param lines: list of records.csv contents without the student to be removed
         :return: none
         '''
-        with open('records.csv', 'w', newline='') as write_file:
-            new_content = csv.writer(write_file)
-            for line in lines:
-                new_content.writerow(line)
+        try:
+            with open('records.csv', 'w', newline='') as write_file:
+                new_content = csv.writer(write_file)
+                for line in lines:
+                    new_content.writerow(line)
+        except:
+            print('Error')
