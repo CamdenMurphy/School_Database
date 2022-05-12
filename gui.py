@@ -124,11 +124,11 @@ class GUI:
                     else:
                         prompt = 'Student removed.'
                         found = True
+                if found:
+                    self.rewrite(lines)
+                elif not found:
+                    prompt = f'Student ID: {student_id} not found!'
 
-                    if not found:
-                        prompt = f'Student ID: {student_id} not found!'
-
-                self.rewrite(lines)
                 self.label_prompt.config(text=f'{prompt}')
         except Exception:
             print('Error')
