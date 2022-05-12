@@ -39,15 +39,18 @@ class GUI:
         self.radio_senior.pack(side='left')
         self.frame_status.pack(anchor='w', pady=10)
 
-        self.frame_save = Frame(self.window)
-        self.button_save = Button(self.frame_save, text='SAVE', command=self.save_clicked)
-        self.button_save.pack()
-        self.frame_save.pack(pady=10)
+        # Buttons
+        self.frame_buttons = Frame(self.window)
+        self.button_save = Button(self.frame_buttons, text='    SAVE    ', command=self.save_clicked)
+        self.button_remove = Button(self.frame_buttons, text='REMOVE', command=self.remove_clicked)
+        self.button_save.pack(side='left', padx=10)
+        self.button_remove.pack(side='left', padx=10)
+        self.frame_buttons.pack(pady=10)
 
-        self.frame_save = Frame(self.window)
-        self.button_save = Button(self.frame_save, text='REMOVE', command=self.remove_clicked)
-        self.button_save.pack()
-        self.frame_save.pack(pady=10)
+        self.frame_prompt = Frame(self.window)
+        self.label_prompt = Label(self.frame_prompt, text='')
+        self.label_prompt.pack(side='top')
+        self.frame_prompt.pack(pady=10)
 
 
     def clear_window(self):
@@ -68,11 +71,14 @@ class GUI:
         name = self.entry_name.get()
         student_id = int(self.entry_id.get())
         status = self.radio_1.get()
+        prompt = ''
 
         with open('records.csv', 'a', newline='') as records:
             content = csv.writer(records)
             content.writerow([name, student_id, status])
+            prompt = 'Student added.'
 
+        self.label_prompt.config(text=f'{prompt}')
         self.clear_window()
 
     def remove_clicked(self):
@@ -84,15 +90,22 @@ class GUI:
 
         with open('records.csv', 'r', newline='') as read_file:
             lines = list()
+            prompt = ''
+            found = False
             content = csv.reader(read_file)
 
             for row in content:
                 if int(row[1]) != student_id:
                     lines.append(row)
                 else:
-                    print('Student removed.')
-            self.rewrite(lines)
+                    prompt = 'Student removed.'
+                    found = True
 
+                if not found:
+                    prompt = f'Student ID: {student_id} not found!'
+
+            self.rewrite(lines)
+            self.label_prompt.config(text=f'{prompt}')
         self.clear_window()
 
     def rewrite(self, lines):
