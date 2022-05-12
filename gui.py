@@ -11,30 +11,32 @@ class GUI:
         self.window = window
 
         self.frame_name = Frame(self.window)
-        self.label_name = Label(self.frame_name, text='Name')
+        self.label_name = Label(self.frame_name, text='Student Name')
         self.entry_name = Entry(self.frame_name)
         self.label_name.pack(padx=5, side='left')
         self.entry_name.pack(padx=5, side='left')
         self.frame_name.pack(anchor='w', pady=10)   # anchor='w' helps to change the frame position from center to west.
 
-        self.frame_age = Frame(self.window)
-        self.label_age = Label(self.frame_age, text='Age')
-        self.entry_age = Entry(self.frame_age)
-        self.label_age.pack(padx=5, side='left')
-        self.entry_age.pack(padx=16, side='left')
-        self.frame_age.pack(anchor='w', pady=10)
+        self.frame_id = Frame(self.window)
+        self.label_id = Label(self.frame_id, text='Student ID')
+        self.entry_id = Entry(self.frame_id)
+        self.label_id.pack(padx=5, side='left')
+        self.entry_id.pack(padx=26, side='left')
+        self.frame_id.pack(anchor='w', pady=10)
 
         self.frame_status = Frame(self.window)
         self.radio_1 = StringVar()
         self.radio_1.set('NONE')
         self.label_status = Label(self.frame_status, text='Status')
-        self.radio_student = Radiobutton(self.frame_status, text='Student', variable=self.radio_1, value='Student')
-        self.radio_staff = Radiobutton(self.frame_status, text='Staff', variable=self.radio_1, value='Staff')
-        self.radio_both = Radiobutton(self.frame_status, text='Both', variable=self.radio_1, value='Both')
+        self.radio_fresh = Radiobutton(self.frame_status, text='Freshman', variable=self.radio_1, value='Freshman')
+        self.radio_soph = Radiobutton(self.frame_status, text='Sophomore', variable=self.radio_1, value='Sophomore')
+        self.radio_junior = Radiobutton(self.frame_status, text='Junior', variable=self.radio_1, value='Junior')
+        self.radio_senior = Radiobutton(self.frame_status, text='Senior', variable=self.radio_1, value='Senior')
         self.label_status.pack(padx=5, side='left')
-        self.radio_student.pack(side='left')
-        self.radio_staff.pack(side='left')
-        self.radio_both.pack(side='left')
+        self.radio_fresh.pack(side='left')
+        self.radio_soph.pack(side='left')
+        self.radio_junior.pack(side='left')
+        self.radio_senior.pack(side='left')
         self.frame_status.pack(anchor='w', pady=10)
 
         self.frame_save = Frame(self.window)
@@ -42,31 +44,65 @@ class GUI:
         self.button_save.pack()
         self.frame_save.pack(pady=10)
 
+        self.frame_save = Frame(self.window)
+        self.button_save = Button(self.frame_save, text='REMOVE', command=self.remove_clicked)
+        self.button_save.pack()
+        self.frame_save.pack(pady=10)
+
 
     def clear_window(self):
+        '''
+        This method is called to reset the window to its default settings
+        :return: None
+        '''
         self.entry_name.delete(0, END)
-        self.entry_age.delete(0, END)
+        self.entry_id.delete(0, END)
         self.radio_1.set("NONE")
 
     def save_clicked(self):
         """
         This method is enacted when the save button is clicked.
-        It saves the entered student or staff member into a csv file.
+        It saves the entered student into a csv file.
         :return: None
         """
         name = self.entry_name.get()
-        age = int(self.entry_age.get())
+        student_id = int(self.entry_id.get())
         status = self.radio_1.get()
 
         with open('records.csv', 'a', newline='') as records:
             content = csv.writer(records)
-            content.writerow([name, age, status])
+            content.writerow([name, student_id, status])
 
         self.clear_window()
 
     def remove_clicked(self):
         """
-        This method removes a record by name (TODO: change name to id number)
-        :return:
+        This method searches records.csv for a student ID and removes its contents
+        :return: None
         """
-        name = self.entry_name.get()
+        student_id = int(self.entry_id.get())
+
+        with open('records.csv', 'r', newline='') as read_file:
+            lines = list()
+            content = csv.reader(read_file)
+
+            for row in content:
+                if int(row[1]) != student_id:
+                    lines.append(row)
+                else:
+                    print('Student removed.')
+            self.rewrite(lines)
+
+        self.clear_window()
+
+    def rewrite(self, lines):
+        '''
+        This method overwrites the records.csv file with all the students
+        except for the one removed in the remove.clicked() method.
+        :param lines: list of records.csv contents without the student to be removed
+        :return: none
+        '''
+        with open('records.csv', 'w', newline='') as write_file:
+            new_content = csv.writer(write_file)
+            for line in lines:
+                new_content.writerow(line)
