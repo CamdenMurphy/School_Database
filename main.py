@@ -4,7 +4,7 @@ from gui import *
 def main():
     window = Tk()
     window.title('Student Database')
-    window.geometry('345x280')
+    window.geometry('345x250')
     window.resizable(False, False)
     widgets = GUI(window)
     window.mainloop()
